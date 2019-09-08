@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const GeneService = require('../services/gene-service');
+const GeneDatabase = require('../models/gene-database');
 const assert = require('assert');
 
 function readData() {
@@ -32,9 +32,9 @@ function createDocuments(data) {
 async function main() {
     const url = 'mongodb://localhost:27017';
     const db = 'geneData';
-    const collection = 'testCollection';
+    const collection = 'geneCollection';
 
-    let gs = new GeneService(url,db, collection);
+    let gs = new GeneDatabase(url,db, collection);
     let data = readData();
     let docs = createDocuments(data);
 

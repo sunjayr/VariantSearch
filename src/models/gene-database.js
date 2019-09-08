@@ -25,7 +25,7 @@ class GeneDatabase {
         });
     }
 
-    async getAllData() {
+    async getAllGenes() {
         if (this.connected === false) {
             await this.connect();
         }
