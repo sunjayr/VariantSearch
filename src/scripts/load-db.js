@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const GeneDatabase = require('../models/gene-database');
+const gd = require('../models/gene-database');
 const assert = require('assert');
 
 function readData() {
@@ -30,17 +30,12 @@ function createDocuments(data) {
 }
 
 async function main() {
-    const url = 'mongodb://localhost:27017';
-    const db = 'geneData';
-    const collection = 'geneCollection';
-
-    let gs = new GeneDatabase(url,db, collection);
     let data = readData();
     let docs = createDocuments(data);
 
-    let collectionSize = await gs.getCollectionSize();
+    let collectionSize = await gd.getCollectionSize();
     if (collectionSize < 1) {
-        let inserted = await gs.insertData(docs);
+        let inserted = await gd.insertData(docs);
         if (inserted.result.ok === 1){
             console.log(`Inserted ${inserted.result.n} documents into ${collection}`);
         }

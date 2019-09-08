@@ -1,12 +1,13 @@
 const MongoClient = require('mongodb').MongoClient;
+const config = require('../../config');
 const assert = require('assert');
 
 class GeneDatabase {
-    constructor (url, dbName, collection) {
-        this.url = url;
-        this.dbName = dbName;
+    constructor () {
+        this.url = config.url;
+        this.dbName = config.db;
         this.connected = false;
-        this.collection = collection;
+        this.collection = config.collection;
     }
 
     connect() {
@@ -48,12 +49,21 @@ class GeneDatabase {
         if (this.connected === false) {
             await this.connect();
         }
-        const geneCollection = this.db.collection(this.collection)
+        const geneCollection = this.db.collection(this.collection);
         let result = await geneCollection.insertMany(data);
         return result
+    }
+
+    async getGeneMatches() {
+        if (this.connected === false) {
+            await this.connect();
+        }
+        const geneCollection = this.db.collection(this.collection);
+        //TODO finish this function
     }
 
 
 }
 
-module.exports = GeneDatabase;
+const gd = new GeneDatabase();
+module.exports = gd;

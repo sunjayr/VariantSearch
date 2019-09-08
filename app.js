@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const app = express();
 const port = 3000;
-const routes = require('./src/controllers/routes');
+const routes = require('./src/routes/gene-routes');
 
 app.get('/', (req,res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
