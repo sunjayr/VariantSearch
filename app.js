@@ -1,7 +1,8 @@
 const express = require('express');
 const path = require('path');
+const config = require('./config');
+
 const app = express();
-const port = 3000;
 const routes = require('./src/routes/gene-routes');
 
 app.get('/', (req,res) => {
@@ -10,6 +11,6 @@ app.get('/', (req,res) => {
 
 app.use('/genes', routes);
 
-app.listen(port, () => {
-    console.log(`Running on port ${port}`);
+app.listen(config.port, () => {
+    console.log(`Running on port ${config.port}`);
 });

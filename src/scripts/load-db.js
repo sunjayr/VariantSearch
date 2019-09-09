@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const gd = require('../models/gene-database');
+const config = require('../../config');
 const assert = require('assert');
 
 function readData() {
@@ -37,11 +38,11 @@ async function main() {
     if (collectionSize < 1) {
         let inserted = await gd.insertData(docs);
         if (inserted.result.ok === 1){
-            console.log(`Inserted ${inserted.result.n} documents into ${collection}`);
+            console.log(`Inserted ${inserted.result.n} documents into ${config.collection}`);
         }
     }
     else {
-        console.log(`Collection ${collection} already contains documents. Size: ${collectionSize}`);
+        console.log(`Collection ${config.collection} already contains documents. Size: ${collectionSize}`);
     }
 }
 

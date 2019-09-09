@@ -31,6 +31,50 @@
         </style>
     </head>
     <body>
+        <script>
+            (function() {
+                const port = 3000;
+                const url = `http://localhost:${port}`;
+                
+                function loadAllRows() {
+                    let xhttp = new XMLHttpRequest();
+                    xhttp.onreadystatechange = () => {
+                        if (xhttp.readyState === 4 && xhttp.status === 200) {
+                            addData(xhttp.responseText);
+                        }
+                    }
+                    let endpoint = url + '/genes';
+                    xhttp.open('GET', endpoint, true);
+                    xhttp.send();
+                }
+                
+                function addData(responseText) {
+                    let geneCol = document.getElementById('gene-col');
+                    let nucleotideCol = document.getElementById('nucleotide-col');
+                    let proteinCol = document.getElementById('protein-col');
+                    let aliasCol = document.getElementById('alias-col');
+                    let regionCol = document.getElementById('region-col');
+                    let classCol = document.getElementById('classification-col');
+                    let evalCol = document.getElementById('eval-col');
+                    let updateCol = document.getElementById('update-col');
+                    let infoCol = document.getElementById('info-col');
+
+                    responseBody = JSON.parse(responseText);
+                    let rows = responseBody['result'];
+                    geneCol.innerHTML += `<div>${rows[0]['Gene']}</div>`;
+                    nucleotideCol.innerHTML += `<div>${rows[0]['Nucleotide Change']}</div>`;
+                    proteinCol.innerHTML += `<div>${rows[0]['Protein Change']}</div>`;
+                    aliasCol.innerHTML += `<div>${rows[0]['Alias']}</div>`;
+                    regionCol.innerHTML += `<div>${rows[0]['Region']}</div>`;
+                    classCol.innerHTML += `<div>${rows[0]['Reported Classification']}</div>`;
+                    evalCol.innerHTML += `<div>${rows[0]['Last Evaluated']}</div>`;
+                    updateCol.innerHTML += `<div>${rows[0]['Last Updated']}</div>`;
+                    infoCol.innerHTML += `<div>${rows[0]['Source']}</div>`
+                }
+
+                document.addEventListener('DOMContentLoaded', loadAllRows);
+            })();
+        </script>
         <div id="title" class="title-element">Variant Search Tool</div>
         <div class="d-flex flex-row">
             <div class="input-group input-group-sm">
@@ -43,66 +87,39 @@
         <div class="d-flex flex-row">
             <div class="d-flex flex-column flex-wrap flex-fill" style="padding: 0px">
                 <div class="grid-header">Gene</div>
-                <div id="gene-col" class="grid-body">
-                    <div>Element 1</div>
-                    <div>Element sdkfjhsdkjhsd</div>
-                </div>
+                <div id="gene-col" class="grid-body"></div>
             </div>
-            <div class="d-flex flex-column flex-wrap flex-fill" style="padding: 0px">
-                <div class="grid-header">Nucleotide Change</div>
-                <div id="nucleotide-col" class="grid-body">
-                    <div>Item1 asdjkfhalsdjhfasdfkjh</div>
-                    <div>Item2</div>
-                </div>
+            <div class="d-flex flex-column flex-fill" style="padding: 0px">
+                <div class="grid-header flex-nowrap">Nucleotide Change</div>
+                <div id="nucleotide-col" class="grid-body"></div>
             </div>
-            <div class="d-flex flex-column flex-wrap flex-fill" style="padding: 0px">
-                <div class="grid-header">Protein Change</div>
-                <div id="protein-col" class="grid-body">
-                    <div>Item1</div>
-                    <div>Item2</div>
-                </div>
+            <div class="d-flex flex-column flex-fill" style="padding: 0px">
+                <div class="grid-header flex-nowrap">Protein Change</div>
+                <div id="protein-col" class="grid-body"></div>
             </div>
             <div class="d-flex flex-column flex-wrap flex-fill" style="padding: 0px">
                 <div class="grid-header">Alias</div>
-                <div id="alias-col" class="grid-body">
-                    <div>Item1</div>
-                    <div>Item2</div>
-                </div>
+                <div id="alias-col" class="grid-body"></div>
             </div>
             <div class="d-flex flex-column flex-wrap flex-fill" style="padding: 0px">
                 <div class="grid-header">Region</div>
-                <div id="region-col" class="grid-body">
-                    <div>Item1</div>
-                    <div>Item2</div>
-                </div>
+                <div id="region-col" class="grid-body"></div>
             </div>
             <div class="d-flex flex-column flex-wrap flex-fill" style="padding: 0px">
                 <div class="grid-header">Reported Classification</div>
-                <div id="classification-col" class="grid-body">
-                    <div>Item1</div>
-                    <div>Item2</div>
-                </div>
+                <div id="classification-col" class="grid-body"></div>
             </div>
             <div class="d-flex flex-column flex-wrap flex-fill" style="padding: 0px">
                     <div class="grid-header">Last Evaluated</div>
-                    <div id="eval-col" class="grid-body">
-                        <div>Item1</div>
-                        <div>Item2</div>
-                    </div>
+                    <div id="eval-col" class="grid-body"></div>
             </div>
             <div class="d-flex flex-column flex-wrap flex-fill" style="padding: 0px">
                 <div class="grid-header">Last Updated</div>
-                <div id="update-col" class="grid-body">
-                    <div>Item1</div>
-                    <div>Item2</div>
-                </div>
+                <div id="update-col" class="grid-body"></div>
             </div>
             <div class="d-flex flex-column flex-wrap flex-fill" style="padding: 0px">
                 <div class="grid-header">More Info</div>
-                <div id="info-col" class="grid-body">
-                    <div>Item1</div>
-                    <div>Item2</div>
-                </div>
+                <div id="info-col" class="grid-body"></div>
             </div>
     
         </div>
