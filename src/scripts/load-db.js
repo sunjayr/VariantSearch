@@ -13,7 +13,9 @@ function readData() {
 
 function createDocuments(data) {
     let documents = [];
-    let header = data[0].split('\t');
+    let header = data[0].split('\t').map(x => {
+        return x.toLowerCase().split(' ').join('_');
+    });
     for (let i = 1; i < data.length; i++) {
         let row = data[i].split('\t');
         let doc = {};

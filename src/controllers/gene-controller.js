@@ -10,9 +10,7 @@ class GeneController {
                 });
             }
     
-            response.status(200).json({
-                result: data
-            });
+            response.status(200).json(data);
         });
     }
 }

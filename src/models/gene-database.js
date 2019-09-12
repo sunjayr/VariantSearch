@@ -8,6 +8,8 @@ class GeneDatabase {
         this.dbName = config.db;
         this.connected = false;
         this.collection = config.collection;
+        this.defaultOffset = 0;
+        this.defaultLimit = 30;
     }
 
     connect() {
@@ -26,14 +28,23 @@ class GeneDatabase {
         });
     }
 
-    async getAllGenes() {
+    async getAllGenes(offset,limit) {
         if (this.connected === false) {
             await this.connect();
         }
         const geneCollection = this.db.collection(this.collection);
-        let cursor = geneCollection.find({});
+        let off = offset != undefined ? offset : this.defaultOffset;
+        let lim = limit != undefined ? limit : this.defaultLimit;
+
+        let count = await geneCollection.find({}).count();
+        let cursor = geneCollection.find({}).skip(off).limit(lim);
         let result = await cursor.toArray();
-        return result;
+        return {
+            offset: off,
+            limit: lim,
+            totalResults: count,
+            results: result
+        }
     }
 
     async getCollectionSize() {

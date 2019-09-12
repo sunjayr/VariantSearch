@@ -28,6 +28,14 @@
                 padding: 2px;
             }
 
+            .col-container {
+                padding: 0px;
+                text-align: center;
+            }
+
+            .col-highlight {
+                background-color: lightslategrey;
+            }
         </style>
     </head>
     <body>
@@ -36,6 +44,30 @@
                 const port = 3000;
                 const url = `http://localhost:${port}`;
                 
+                function setUpDocument() {
+                    loadAllRows();
+                    //addHighlightListeners();
+                }
+                
+                function addHighlightListeners() {
+                    let columns = [
+                        'gene-col',
+                        'nucleotide-col',
+                        'protein-col',
+                        'alias-col',
+                        'region-col',
+                        'classification-col',
+                        'eval-col',
+                        'update-col',
+                        'info-col'
+                    ]
+                    columns.forEach(col => {
+                        document.getElementById(col).addEventListener('mouseover', function() {
+                            this.classList.add('col-highlight');
+                        });
+                    });
+                }
+                
                 function loadAllRows() {
                     let xhttp = new XMLHttpRequest();
                     xhttp.onreadystatechange = () => {
@@ -43,86 +75,96 @@
                             addData(xhttp.responseText);
                         }
                     }
-                    let endpoint = url + '/genes';
+                    let endpoint = url + '/genes/all';
                     xhttp.open('GET', endpoint, true);
                     xhttp.send();
                 }
-                
+
                 function addData(responseText) {
-                    let geneCol = document.getElementById('gene-col');
-                    let nucleotideCol = document.getElementById('nucleotide-col');
-                    let proteinCol = document.getElementById('protein-col');
-                    let aliasCol = document.getElementById('alias-col');
-                    let regionCol = document.getElementById('region-col');
-                    let classCol = document.getElementById('classification-col');
-                    let evalCol = document.getElementById('eval-col');
-                    let updateCol = document.getElementById('update-col');
-                    let infoCol = document.getElementById('info-col');
+                    let columns = {
+                        'gene-col': 'gene',
+                        'nucleotide-col': 'nucleotide_change',
+                        'protein-col': 'protein_change',
+                        'alias-col': 'alias',
+                        'region-col': 'region',
+                        'classification-col': 'reported_classification',
+                        'eval-col': 'last_evaluated',
+                        'update-col': 'last_updated',
+                        'info-col': 'source'
+                    };
 
                     responseBody = JSON.parse(responseText);
-                    let rows = responseBody['result'];
-                    geneCol.innerHTML += `<div>${rows[0]['Gene']}</div>`;
-                    nucleotideCol.innerHTML += `<div>${rows[0]['Nucleotide Change']}</div>`;
-                    proteinCol.innerHTML += `<div>${rows[0]['Protein Change']}</div>`;
-                    aliasCol.innerHTML += `<div>${rows[0]['Alias']}</div>`;
-                    regionCol.innerHTML += `<div>${rows[0]['Region']}</div>`;
-                    classCol.innerHTML += `<div>${rows[0]['Reported Classification']}</div>`;
-                    evalCol.innerHTML += `<div>${rows[0]['Last Evaluated']}</div>`;
-                    updateCol.innerHTML += `<div>${rows[0]['Last Updated']}</div>`;
-                    infoCol.innerHTML += `<div>${rows[0]['Source']}</div>`
+                    let rows = responseBody['results'];
+                    for (let i = 0; i < rows.length; i++) {
+                        for (let col in columns) {
+                            let element = document.getElementById(col);
+                            if (i % 2 == 0) {
+                                element.innerHTML += `<div class="grid-body" style="padding: 0px;">${rows[i][columns[col]]}</div>`;
+                            }
+                            else {
+                                element.innerHTML += `<div style="padding: 0px;">${rows[i][columns[col]]}</div>`;
+                            }
+                        }
+                    }
                 }
-
-                document.addEventListener('DOMContentLoaded', loadAllRows);
+                document.addEventListener('DOMContentLoaded', setUpDocument);
             })();
         </script>
-        <div id="title" class="title-element">Variant Search Tool</div>
-        <div class="d-flex flex-row">
-            <div class="input-group input-group-sm">
-                <input type="text" class="col-2" placeholder="Enter a gene name">
-                <button class="btn btn-sm mx-1 btn-primary">Search</button>
-                <button class="btn button-sm btn-secondary">Clear</button>
+        <div class="d-flex flex-column">
+            <div id="title" class="title-element">Variant Search Tool</div>
+            <div class="d-flex flex-row">
+                <div class="d-inline-flex flex-row mr-auto">
+                    <div class="input-group input-group-sm">
+                        <input type="text" placeholder="Enter a gene name" style="text-align: center;">
+                        <button class="btn btn-sm mx-1 btn-primary">Search</button>
+                        <button class="btn button-sm btn-secondary">Clear</button>
+                    </div>
+                </div>
+                <div class="d-inline-flex flex-row">
+                    <button class="btn btn-sm btn-outline-secondary"><i class="fa fa-angle-double-left"></i></button>
+                    <button class="btn btn-sm btn-outline-secondary"><i class="fa fa-angle-double-right"></i></button>
+                </div>
+                <!-- Insert markup for pagination here-->
             </div>
-            <!-- Insert markup for pagination here-->
+            <div class="d-flex flex-row" style="overflow: auto;">
+                <div class="d-flex flex-column col-container" style="min-width: 10%">
+                    <div class="grid-header">Gene</div>
+                    <div id="gene-col" style="padding: 0px"></div>
+                </div>
+                <div class="d-flex flex-column col-container" style="min-width: 40%;">
+                    <div class="grid-header">Nucleotide Change</div>
+                    <div id="nucleotide-col" style="padding: 0px"></div>
+                </div>
+                <div class="d-flex flex-column col-container" style="min-width: 20%;">
+                    <div class="grid-header">Protein Change</div>
+                    <div id="protein-col" style="padding: 0px"></div>
+                </div>
+                <div class="d-flex flex-column col-container" style="min-width: 15%;">
+                    <div class="grid-header">Alias</div>
+                    <div id="alias-col" style="padding: 0px"></div>
+                </div>
+                <div class="d-flex flex-column col-container" style="min-width: 17%;">
+                    <div class="grid-header">Region</div>
+                    <div id="region-col" style="padding: 0px"></div>
+                </div>
+                <div class="d-flex flex-column col-container" style="min-width: 15%;">
+                    <div class="grid-header">Reported Classification</div>
+                    <div id="classification-col" style="padding: 0px"></div>
+                </div>
+                <div class="d-flex flex-column col-container" style="min-width: 10%">
+                        <div class="grid-header">Last Evaluated</div>
+                        <div id="eval-col" style="padding: 0px"></div>
+                </div>
+                <div class="d-flex flex-column col-container" style="min-width: 10%;">
+                    <div class="grid-header">Last Updated</div>
+                    <div id="update-col" style="padding: 0px"></div>
+                </div>
+                <div class="d-flex flex-column col-container" style="min-width: 8%;">
+                    <div class="grid-header">More Info</div>
+                    <div id="info-col" style="padding: 0px"></div>
+                </div>
+            </div>
         </div>
-        <div class="d-flex flex-row">
-            <div class="d-flex flex-column flex-wrap flex-fill" style="padding: 0px">
-                <div class="grid-header">Gene</div>
-                <div id="gene-col" class="grid-body"></div>
-            </div>
-            <div class="d-flex flex-column flex-fill" style="padding: 0px">
-                <div class="grid-header flex-nowrap">Nucleotide Change</div>
-                <div id="nucleotide-col" class="grid-body"></div>
-            </div>
-            <div class="d-flex flex-column flex-fill" style="padding: 0px">
-                <div class="grid-header flex-nowrap">Protein Change</div>
-                <div id="protein-col" class="grid-body"></div>
-            </div>
-            <div class="d-flex flex-column flex-wrap flex-fill" style="padding: 0px">
-                <div class="grid-header">Alias</div>
-                <div id="alias-col" class="grid-body"></div>
-            </div>
-            <div class="d-flex flex-column flex-wrap flex-fill" style="padding: 0px">
-                <div class="grid-header">Region</div>
-                <div id="region-col" class="grid-body"></div>
-            </div>
-            <div class="d-flex flex-column flex-wrap flex-fill" style="padding: 0px">
-                <div class="grid-header">Reported Classification</div>
-                <div id="classification-col" class="grid-body"></div>
-            </div>
-            <div class="d-flex flex-column flex-wrap flex-fill" style="padding: 0px">
-                    <div class="grid-header">Last Evaluated</div>
-                    <div id="eval-col" class="grid-body"></div>
-            </div>
-            <div class="d-flex flex-column flex-wrap flex-fill" style="padding: 0px">
-                <div class="grid-header">Last Updated</div>
-                <div id="update-col" class="grid-body"></div>
-            </div>
-            <div class="d-flex flex-column flex-wrap flex-fill" style="padding: 0px">
-                <div class="grid-header">More Info</div>
-                <div id="info-col" class="grid-body"></div>
-            </div>
-    
-        </div>
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
