@@ -6,8 +6,6 @@ router.get('/all', GeneController.getGenes);
 router.post('/autocomplete/:term', (request, response) => {
     response.send('Not implemented yet');
 });
-router.post('/:name', (request, response) => {
-    response.send('Not implemented yet');
-});
+router.get('/:name', GeneController.getSingleGene)
 
 module.exports = router;

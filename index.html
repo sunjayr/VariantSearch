@@ -36,6 +36,13 @@
             .col-highlight {
                 background-color: lightslategrey;
             }
+
+            .page-label {
+                font-size: 13px;
+                font-style: italic;
+                color:gray;
+                padding: 4px;
+            }
         </style>
     </head>
     <body>
@@ -43,29 +50,103 @@
             (function() {
                 const port = 3000;
                 const url = `http://localhost:${port}`;
+                let offset = 0;
+                let totalResults = 0;
+                let batch = 30;
+                
+                
+                const columns = {
+                    'gene-col': 'gene',
+                    'nucleotide-col': 'nucleotide_change',
+                    'protein-col': 'protein_change',
+                    'alias-col': 'alias',
+                    'region-col': 'region',
+                    'classification-col': 'reported_classification',
+                    'eval-col': 'last_evaluated',
+                    'update-col': 'last_updated',
+                    'info-col': 'source'
+                };
                 
                 function setUpDocument() {
                     loadAllRows();
+                    document.getElementById('page-right').addEventListener('click', incrementPage);
+                    document.getElementById('page-left').addEventListener('click', decrementPage);
+                    document.getElementById('search').addEventListener('click', searchGene);
+                    document.getElementById('clear').addEventListener('click', () => {
+                        document.getElementById('input-box').value = null;
+                        loadAllRows();
+                    });
                     //addHighlightListeners();
                 }
                 
+                function searchGene() {
+                    let element = document.getElementById('input-box');
+                    let term = element.value;
+                    requestGene(term);
+                }
+                
+                function updatePaginationLabel() {
+                    document.getElementById('paginate-label').innerText = `${offset + 1} - ${offset + batch} of ${totalResults} results`;
+                }
+                
                 function addHighlightListeners() {
-                    let columns = [
-                        'gene-col',
-                        'nucleotide-col',
-                        'protein-col',
-                        'alias-col',
-                        'region-col',
-                        'classification-col',
-                        'eval-col',
-                        'update-col',
-                        'info-col'
-                    ]
                     columns.forEach(col => {
                         document.getElementById(col).addEventListener('mouseover', function() {
                             this.classList.add('col-highlight');
                         });
                     });
+                }
+                
+                function resetColumns() {
+                    for (let col in columns) {
+                        document.getElementById(col).innerHTML = '';
+                    }
+                }
+                
+                function incrementPage() {
+                    //send get request with same search request
+                    //check to make sure no index error
+                    let test = offset + batch;
+                    if (test <= totalResults) {
+                        let element = document.getElementById('input-box');
+                        let term = element.value; 
+                        offset += batch;
+                        if ( term == null || term == ''){
+                            loadAllRows();
+                        }
+                        else {
+                            searchGene();
+                        }
+                    }
+                    
+                }
+
+                function decrementPage() {
+                    //same implementation as increment except opposite
+                    let test = offset - batch;
+                    if (test >= 0) {
+                        let element = document.getElementById('input-box');
+                        let term = element.value;
+                        offset -= batch;
+                        if ( term == null || term == ''){
+                            loadAllRows();
+                        }
+                        else {
+                            searchGene();
+                        }
+                    }
+                }
+                
+                function requestGene(geneName) {
+                    let xhttp = new XMLHttpRequest();
+                    xhttp.onreadystatechange = () => {
+                        if (xhttp.readyState === 4 && xhttp.status === 200) {
+                            addData(xhttp.responseText);
+                        }
+                    }
+                    let endpoint = url + `/genes/${geneName}?offset=${offset}&batch=${batch}`;
+                    xhttp.open('GET', endpoint, true);
+                    xhttp.send();
                 }
                 
                 function loadAllRows() {
@@ -75,26 +156,19 @@
                             addData(xhttp.responseText);
                         }
                     }
-                    let endpoint = url + '/genes/all';
+                    let endpoint = url + `/genes/all?offset=${offset}&batch=${batch}`;
                     xhttp.open('GET', endpoint, true);
                     xhttp.send();
                 }
 
                 function addData(responseText) {
-                    let columns = {
-                        'gene-col': 'gene',
-                        'nucleotide-col': 'nucleotide_change',
-                        'protein-col': 'protein_change',
-                        'alias-col': 'alias',
-                        'region-col': 'region',
-                        'classification-col': 'reported_classification',
-                        'eval-col': 'last_evaluated',
-                        'update-col': 'last_updated',
-                        'info-col': 'source'
-                    };
-
                     responseBody = JSON.parse(responseText);
+                    offset = responseBody['offset'];
+                    totalResults = responseBody['totalResults'];
+                    batch = responseBody['limit'];
                     let rows = responseBody['results'];
+                    resetColumns();
+                    updatePaginationLabel();
                     for (let i = 0; i < rows.length; i++) {
                         for (let col in columns) {
                             let element = document.getElementById(col);
@@ -115,16 +189,16 @@
             <div class="d-flex flex-row">
                 <div class="d-inline-flex flex-row mr-auto">
                     <div class="input-group input-group-sm">
-                        <input type="text" placeholder="Enter a gene name" style="text-align: center;">
-                        <button class="btn btn-sm mx-1 btn-primary">Search</button>
-                        <button class="btn button-sm btn-secondary">Clear</button>
+                        <input id="input-box" type="text" placeholder="Enter a gene name" style="text-align: center;">
+                        <button id='search' class="btn btn-sm mx-1 btn-primary">Search</button>
+                        <button id='clear' class="btn button-sm btn-secondary">Clear</button>
                     </div>
                 </div>
-                <div class="d-inline-flex flex-row">
-                    <button class="btn btn-sm btn-outline-secondary"><i class="fa fa-angle-double-left"></i></button>
-                    <button class="btn btn-sm btn-outline-secondary"><i class="fa fa-angle-double-right"></i></button>
+                <div class="d-inline-flex flex-row px-4">
+                    <button id="page-left" class="btn btn-sm btn-outline-secondary"><i class="fa fa-angle-double-left"></i></button>
+                    <label id="paginate-label" class="page-label px-2 align-self-center" for="page-left"></label>
+                    <button id="page-right" class="btn btn-sm btn-outline-secondary"><i class="fa fa-angle-double-right"></i></button>
                 </div>
-                <!-- Insert markup for pagination here-->
             </div>
             <div class="d-flex flex-row" style="overflow: auto;">
                 <div class="d-flex flex-column col-container" style="min-width: 10%">

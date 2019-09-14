@@ -47,6 +47,27 @@ class GeneDatabase {
         }
     }
 
+    async getSingleGene(geneName, offset, limit) {
+        if (this.connected === false) {
+            await this.connect();
+        }
+        const geneCollection = this.db.collection(this.collection);
+        let off = offset != undefined ? offset : this.defaultOffset;
+        let lim = limit != undefined ? limit : this.defaultLimit;
+
+        let query = {gene: geneName};
+        let count = await geneCollection.find(query).count();
+        let cursor = geneCollection.find(query).skip(off).limit(lim);
+        let result = await cursor.toArray();
+        return {
+            offset: off,
+            limit: lim,
+            totalResults: count,
+            results: result
+        }
+        
+    }
+    
     async getCollectionSize() {
         if (this.connected === false) {
             await this.connect();
