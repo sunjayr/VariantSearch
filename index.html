@@ -71,7 +71,10 @@
                     loadAllRows();
                     document.getElementById('page-right').addEventListener('click', incrementPage);
                     document.getElementById('page-left').addEventListener('click', decrementPage);
-                    document.getElementById('search').addEventListener('click', searchGene);
+                    document.getElementById('search').addEventListener('click', () => {
+                        offset = 0;
+                        searchGene();
+                    });
                     document.getElementById('clear').addEventListener('click', () => {
                         document.getElementById('input-box').value = null;
                         loadAllRows();
@@ -86,7 +89,9 @@
                 }
                 
                 function updatePaginationLabel() {
-                    document.getElementById('paginate-label').innerText = `${offset + 1} - ${offset + batch} of ${totalResults} results`;
+                    let batchSize = offset + batch;
+                    let maxRange = totalResults <= batchSize ? totalResults : batchSize;
+                    document.getElementById('paginate-label').innerText = `${offset + 1} - ${maxRange} of ${totalResults} results`;
                 }
                 
                 function addHighlightListeners() {
