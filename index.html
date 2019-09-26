@@ -43,6 +43,30 @@
                 color:gray;
                 padding: 4px;
             }
+
+            .suggestion-container {
+                position: absolute;
+                border: 1px solid #d4d4d4;
+                padding: 0px;
+                border-bottom: none;
+                border-top: none;
+                z-index: 99;
+                top: 100%;
+                left: 0;
+                right: 0;
+                max-height: 200px;
+                overflow: scroll;
+            }
+
+            .suggestion-container div{
+                cursor: pointer;
+                background-color: whitesmoke;
+                border: #07060616 solid 1px;
+            }
+
+            .suggestion-container div:hover {
+                background-color:lightsteelblue;
+            }
         </style>
     </head>
     <body>
@@ -78,6 +102,13 @@
                     document.getElementById('clear').addEventListener('click', () => {
                         document.getElementById('input-box').value = null;
                         loadAllRows();
+                    });
+                    document.getElementById('input-box').addEventListener('input', () => {
+                        let prefix = document.getElementById('input-box').value;
+                        prefix = prefix.toUpperCase().trim();
+                        if (prefix != null && prefix != '' && prefix != undefined) {
+                            requestSuggestions(prefix);
+                        }
                     });
                     //addHighlightListeners();
                 }
@@ -142,6 +173,18 @@
                     }
                 }
                 
+                function requestSuggestions(term) {
+                    let xhttp = new XMLHttpRequest();
+                    xhttp.onreadystatechange = () => {
+                        if (xhttp.readyState === 4 && xhttp.status === 200) {
+                            loadSuggestions(xhttp.responseText);
+                        }
+                    }
+                    let endpoint = url + `/genes/autocomplete/${term}`;
+                    xhttp.open('GET', endpoint, true);
+                    xhttp.send();
+                }
+                
                 function requestGene(geneName) {
                     let xhttp = new XMLHttpRequest();
                     xhttp.onreadystatechange = () => {
@@ -186,6 +229,28 @@
                         }
                     }
                 }
+
+                function loadSuggestions(responseText) {
+                    let response = JSON.parse(responseText).results;
+                    let inputBox = document.getElementById('input-box');
+                    let value = inputBox.value;
+                    let genes = response.map(x => x.gene);
+                    let entry;
+                    console.log(genes);
+                    //let inputBox = document.getElementById('input-box');
+                    //create dropdown
+                    let suggestionBox = document.createElement('div');
+                    suggestionBox.classList.add('suggestion-container');
+                    inputBox.parentNode.appendChild(suggestionBox);
+
+                    for (let gene of genes) {
+                        entry = document.createElement('div');
+                        entry.innerHTML = `<strong>${gene.substr(0,value.length)}</strong>`;
+                        entry.innerHTML += gene.substr(value.length);
+                        entry.innerHTML += `<input type='hidden' value='${gene}'>`;
+                        suggestionBox.appendChild(entry);
+                    }
+                }
                 document.addEventListener('DOMContentLoaded', setUpDocument);
             })();
         </script>
@@ -218,7 +283,7 @@
                     <div class="grid-header">Protein Change</div>
                     <div id="protein-col" style="padding: 0px"></div>
                 </div>
-                <div class="d-flex flex-column col-container" style="min-width: 15%;">
+                <div class="d-flex flex-column col-container" style="min-width: 22%;">
                     <div class="grid-header">Alias</div>
                     <div id="alias-col" style="padding: 0px"></div>
                 </div>

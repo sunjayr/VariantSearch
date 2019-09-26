@@ -86,12 +86,15 @@ class GeneDatabase {
         return result
     }
 
-    async getGeneMatches() {
+    async getSuggestions(prefix) {
         if (this.connected === false) {
             await this.connect();
         }
         const geneCollection = this.db.collection(this.collection);
-        //TODO finish this function
+        let cursor = geneCollection.find({gene: {'$regex': `^${prefix}`}}).project({gene: 1, _id: 0});
+        let result = await cursor.toArray();
+        return result;
+
     }
 
 

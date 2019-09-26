@@ -33,6 +33,23 @@ class GeneController {
         });
 
     }
+
+    static async getSuggestions(request, response) {
+        let prefix = request.params.term;
+        GeneDatabase.getSuggestions(prefix).then((data,err) => {
+            if (err) {
+                response.status(500).json({
+                    'request': request.body,
+                    error_message: err
+                });
+            }
+
+            response.status(200).json({
+                results: data
+            });
+        });
+
+    }
 }
 
 module.exports = GeneController;
