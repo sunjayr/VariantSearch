@@ -6,6 +6,9 @@
         <title>Variant Search Tool</title>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-grid.css">
+        <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-theme-balham.css">
         <style>
             .grid-header {
                 background-color:lightskyblue;
@@ -92,25 +95,57 @@
                 };
                 
                 function setUpDocument() {
-                    loadAllRows();
-                    document.getElementById('page-right').addEventListener('click', incrementPage);
-                    document.getElementById('page-left').addEventListener('click', decrementPage);
-                    document.getElementById('search').addEventListener('click', () => {
-                        offset = 0;
-                        searchGene();
-                    });
-                    document.getElementById('clear').addEventListener('click', () => {
-                        document.getElementById('input-box').value = null;
-                        loadAllRows();
-                    });
-                    document.getElementById('input-box').addEventListener('input', () => {
-                        let prefix = document.getElementById('input-box').value;
-                        prefix = prefix.toUpperCase().trim();
-                        if (prefix != null && prefix != '' && prefix != undefined) {
-                            requestSuggestions(prefix);
-                        }
-                    });
+                    // loadAllRows();
+                    // document.getElementById('page-right').addEventListener('click', incrementPage);
+                    // document.getElementById('page-left').addEventListener('click', decrementPage);
+                    // document.getElementById('search').addEventListener('click', () => {
+                    //     offset = 0;
+                    //     searchGene();
+                    // });
+                    // document.getElementById('clear').addEventListener('click', () => {
+                    //     document.getElementById('input-box').value = null;
+                    //     loadAllRows();
+                    // });
+                    // document.getElementById('input-box').addEventListener('input', () => {
+                    //     let prefix = document.getElementById('input-box').value;
+                    //     prefix = prefix.toUpperCase().trim();
+                    //     if (prefix != null && prefix != '' && prefix != undefined) {
+                    //         requestSuggestions(prefix);
+                    //     }
+                    // });
+                    setGrid();
                     //addHighlightListeners();
+                }
+                
+                function setGrid() {
+                    let columns = [
+                        {headerName: 'Gene', field: 'gene'},
+                        {headerName: 'Nucleotide Change', field: 'nucleotideChange'},
+                        {headerName: 'Protein Change', field: 'proteinChange'},
+                        {headerName: 'Alias', field: 'alias'},
+                        {headerName: 'Region', field: 'region'},
+                        {headerName: 'Reported Classification', field: 'reportedClassification'},
+                        {headerName: 'Last Evaluated', field: 'lastEvaluated'},
+                        {headerName: 'Last Updated', field: 'lastUpdated'},
+                        {headerName: 'Source', field: 'source'}
+                    ];
+                    let rowData = [{
+                        gene: 'test',
+                        nucleotideChange: 'another',
+                        proteinChange: 'asdlfjh',
+                        alias: 'dfsd',
+                        region: 'asdjfn',
+                        reportedClassification: 'askdjhs',
+                        lastEvaluated: 'asdifuhr',
+                        lastUpdated: '12-12-12',
+                        source: 'asdfjh'
+                    }];
+                    let gridOptions = {
+                        columnDefs: columns,
+                        rowData: rowData
+                    }
+                    let gridDiv = document.getElementById('grid');
+                    new agGrid.Grid(gridDiv, gridOptions);
                 }
                 
                 function searchGene() {
@@ -278,44 +313,7 @@
                     <button id="page-right" class="btn btn-sm btn-outline-secondary"><i class="fa fa-angle-double-right"></i></button>
                 </div>
             </div>
-            <div class="d-flex flex-row" style="overflow: auto;">
-                <div class="d-flex flex-column col-container" style="min-width: 10%">
-                    <div class="grid-header">Gene</div>
-                    <div id="gene-col" style="padding: 0px"></div>
-                </div>
-                <div class="d-flex flex-column col-container" style="min-width: 40%;">
-                    <div class="grid-header">Nucleotide Change</div>
-                    <div id="nucleotide-col" style="padding: 0px"></div>
-                </div>
-                <div class="d-flex flex-column col-container" style="min-width: 20%;">
-                    <div class="grid-header">Protein Change</div>
-                    <div id="protein-col" style="padding: 0px"></div>
-                </div>
-                <div class="d-flex flex-column col-container" style="min-width: 22%;">
-                    <div class="grid-header">Alias</div>
-                    <div id="alias-col" style="padding: 0px"></div>
-                </div>
-                <div class="d-flex flex-column col-container" style="min-width: 17%;">
-                    <div class="grid-header">Region</div>
-                    <div id="region-col" style="padding: 0px"></div>
-                </div>
-                <div class="d-flex flex-column col-container" style="min-width: 15%;">
-                    <div class="grid-header">Reported Classification</div>
-                    <div id="classification-col" style="padding: 0px"></div>
-                </div>
-                <div class="d-flex flex-column col-container" style="min-width: 10%">
-                        <div class="grid-header">Last Evaluated</div>
-                        <div id="eval-col" style="padding: 0px"></div>
-                </div>
-                <div class="d-flex flex-column col-container" style="min-width: 10%;">
-                    <div class="grid-header">Last Updated</div>
-                    <div id="update-col" style="padding: 0px"></div>
-                </div>
-                <div class="d-flex flex-column col-container" style="min-width: 8%;">
-                    <div class="grid-header">More Info</div>
-                    <div id="info-col" style="padding: 0px"></div>
-                </div>
-            </div>
+            <div id='grid'></div>
         </div>
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
