@@ -220,12 +220,21 @@
                     for (let i = 0; i < rows.length; i++) {
                         for (let col in columns) {
                             let element = document.getElementById(col);
-                            if (i % 2 == 0) {
-                                element.innerHTML += `<div class="grid-body" style="padding: 0px;">${rows[i][columns[col]]}</div>`;
+                            let cell = document.createElement('div');
+                            cell.style.padding = '0px';
+                            if (col === 'info-col') {
+                                let url = document.createElement('a');
+                                url.href = rows[i]['url'];
+                                url.innerHTML = rows[i][columns[col]];
+                                cell.appendChild(url);
                             }
                             else {
-                                element.innerHTML += `<div style="padding: 0px;">${rows[i][columns[col]]}</div>`;
+                                cell.innerText = rows[i][columns[col]];
                             }
+                            if (i % 2 == 0) {
+                                cell.classList.add('grid-body');
+                            }
+                            element.appendChild(cell);
                         }
                     }
                 }
@@ -236,7 +245,6 @@
                     let value = inputBox.value;
                     let genes = response.map(x => x.gene);
                     let entry;
-                    console.log(genes);
                     //let inputBox = document.getElementById('input-box');
                     //create dropdown
                     let suggestionBox = document.createElement('div');
