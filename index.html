@@ -77,6 +77,7 @@
                 let offset = 0;
                 let totalResults = 0;
                 let batch = 30;
+                let suggestionIndex;
                 
                 
                 const columns = {
@@ -97,14 +98,17 @@
                     document.getElementById('page-left').addEventListener('click', decrementPage);
                     document.getElementById('search').addEventListener('click', () => {
                         offset = 0;
+                        closeSuggestionList();
                         searchGene();
                     });
                     document.getElementById('clear').addEventListener('click', () => {
                         document.getElementById('input-box').value = null;
+                        closeSuggestionList();
                         loadAllRows();
                     });
                     document.getElementById('input-box').addEventListener('input', () => {
-                        let prefix = document.getElementById('input-box').value;
+                        closeSuggestionList();
+                        let prefix = document.getElementById('input-box').value; 
                         prefix = prefix.toUpperCase().trim();
                         if (prefix != null && prefix != '' && prefix != undefined) {
                             requestSuggestions(prefix);
@@ -238,12 +242,13 @@
                         }
                     }
                 }
-
+                
                 function loadSuggestions(responseText) {
                     let response = JSON.parse(responseText).results;
                     let inputBox = document.getElementById('input-box');
                     let value = inputBox.value;
-                    let genes = response.map(x => x.gene);
+                    let genes = response.map(x => x.gene)
+                    let filteredGenes = genes.filter((g,index) => genes.indexOf(g) == index);
                     let entry;
                     //let inputBox = document.getElementById('input-box');
                     //create dropdown
@@ -251,14 +256,34 @@
                     suggestionBox.classList.add('suggestion-container');
                     inputBox.parentNode.appendChild(suggestionBox);
 
-                    for (let gene of genes) {
+                    for (let gene of filteredGenes) {
                         entry = document.createElement('div');
                         entry.innerHTML = `<strong>${gene.substr(0,value.length)}</strong>`;
                         entry.innerHTML += gene.substr(value.length);
                         entry.innerHTML += `<input type='hidden' value='${gene}'>`;
+                        entry.addEventListener('click', () => {
+                            inputBox.value = gene;
+                            closeSuggestionList();
+                        });
+                        
                         suggestionBox.appendChild(entry);
                     }
                 }
+
+                function closeSuggestionList(target) {
+                    let elements = document.getElementsByClassName('suggestion-container');
+                    for (let i = 0; i < elements.length; i++){
+                        if (target != elements[i] && target != document.getElementById('input-box').value){
+                            elements[i].parentNode.removeChild(elements[i]);
+                        }
+                    }
+
+                }
+                
+                document.addEventListener('click', () => {
+                    closeSuggestionList(e.target);
+                });
+
                 document.addEventListener('DOMContentLoaded', setUpDocument);
             })();
         </script>
