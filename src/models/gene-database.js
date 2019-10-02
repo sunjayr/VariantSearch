@@ -93,7 +93,9 @@ class GeneDatabase {
         const geneCollection = this.db.collection(this.collection);
         let cursor = geneCollection.find({gene: {'$regex': `^${prefix}`}}).project({gene: 1, _id: 0});
         let result = await cursor.toArray();
-        return result;
+        result = result.map(x => x.gene);
+        let filteredResult = result.filter((x,index) => result.indexOf(x) == index);
+        return filteredResult;
 
     }
 
