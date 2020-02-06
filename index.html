@@ -81,15 +81,15 @@
                 
                 
                 const columns = {
-                    'gene-col': 'gene',
-                    'nucleotide-col': 'nucleotide_change',
-                    'protein-col': 'protein_change',
-                    'alias-col': 'alias',
-                    'region-col': 'region',
-                    'classification-col': 'reported_classification',
-                    'eval-col': 'last_evaluated',
-                    'update-col': 'last_updated',
-                    'info-col': 'source'
+                    'gene-col': {column: 'gene', maxSize: 0},
+                    'nucleotide-col': {column: 'nucleotide_change', maxSize: 0},
+                    'protein-col': {column: 'protein_change', maxSize: 0},
+                    'alias-col': {column: 'alias', maxSize: 0},
+                    'region-col': {column: 'region', maxSize: 0},
+                    'classification-col': {column: 'reported_classification', maxSize: 0},
+                    'eval-col': {column: 'last_evaluated', maxSize: 0},
+                    'update-col': {column: 'last_updated', maxSize: 0},
+                    'info-col': {column: 'source', maxSize: 0}
                 };
                 
                 function setUpDocument() {
@@ -128,17 +128,10 @@
                     document.getElementById('paginate-label').innerText = `${offset + 1} - ${maxRange} of ${totalResults} results`;
                 }
                 
-                function addHighlightListeners() {
-                    columns.forEach(col => {
-                        document.getElementById(col).addEventListener('mouseover', function() {
-                            this.classList.add('col-highlight');
-                        });
-                    });
-                }
-                
                 function resetColumns() {
                     for (let col in columns) {
                         document.getElementById(col).innerHTML = '';
+                        columns[col].maxSize = 0;
                     }
                 }
                 
@@ -218,6 +211,18 @@
                     totalResults = responseBody['totalResults'];
                     batch = responseBody['limit'];
                     let rows = responseBody['results'];
+                    
+                    const geneCont = document.getElementById('gene-container');
+                    const nucCont = document.getElementById('nucleotide-container');
+                    const proteinCont = document.getElementById('protein-container');
+                    const aliasCont = document.getElementById('alias-container');
+                    const regionCont = document.getElementById('region-container');
+                    const classCont = document.getElementById('classification-container');
+                    const evalCont = document.getElementById('eval-container');
+                    const updateCont = document.getElementById('update-container');
+                    const infoCont = document.getElementById('info-container');
+
+                    
                     resetColumns();
                     updatePaginationLabel();
                     for (let i = 0; i < rows.length; i++) {
@@ -228,19 +233,34 @@
                             if (col === 'info-col') {
                                 let url = document.createElement('a');
                                 url.href = rows[i]['url'];
-                                url.innerHTML = rows[i][columns[col]];
+                                url.innerHTML = rows[i][columns[col].column];
                                 cell.appendChild(url);
                             }
                             else {
-                                cell.innerText = rows[i][columns[col]];
+                                cell.innerText = rows[i][columns[col].column];
                             }
                             //collapse show on alias column
                             if (i % 2 == 0) {
                                 cell.classList.add('grid-body');
                             }
+                            let elementWidth = cell.clientWidth;
+                            if (elementWidth > columns[col].maxSize) {
+                                columns[col].maxSize = elementWidth;
+                            }
                             element.appendChild(cell);
                         }
                     }
+
+                    document.getElementById('gene-container').style.minWidth = `${columns['gene-col'].maxSize + 200}px`;
+                    document.getElementById('nucleotide-container').style.minWidth = `${columns['nucleotide-col'].maxSize + 200}px`;
+                    document.getElementById('protein-container').style.minWidth = `${columns['protein-col'].maxSize + 200}px`;
+                    document.getElementById('alias-container').style.minWidth = `${columns['alias-col'].maxSize + 200}px`;
+                    document.getElementById('region-container').style.minWidth = `${columns['region-col'].maxSize + 200}px`;
+                    document.getElementById('classification-container').style.minWidth = `${columns['classification-col'].maxSize + 200}px`;
+                    document.getElementById('eval-container').style.minWidth = `${columns['eval-col'].maxSize + 200}px`;
+                    document.getElementById('update-container').style.minWidth = `${columns['update-col'].maxSize + 200}px`;
+                    document.getElementById('info-container').style.minWidth = `${columns['info-col'].maxSize + 200}px`;
+
                 }
                 
                 function loadSuggestions(responseText) {
@@ -300,39 +320,39 @@
                 </div>
             </div>
             <div class="d-flex flex-row" style="overflow: auto;">
-                <div class="d-flex flex-column col-container" style="min-width: 10%">
+                <div id='gene-container' class="d-flex flex-column col-container flex-fill">
                     <div class="grid-header">Gene</div>
                     <div id="gene-col" style="padding: 0px"></div>
                 </div>
-                <div class="d-flex flex-column col-container" style="min-width: 40%;">
+                <div id='nucleotide-container' class="d-flex flex-column col-container flex-fill">
                     <div class="grid-header">Nucleotide Change</div>
                     <div id="nucleotide-col" style="padding: 0px"></div>
                 </div>
-                <div class="d-flex flex-column col-container" style="min-width: 20%;">
+                <div id='protein-container' class="d-flex flex-column col-container flex-fill">
                     <div class="grid-header">Protein Change</div>
                     <div id="protein-col" style="padding: 0px"></div>
                 </div>
-                <div class="d-flex flex-column col-container" style="min-width: 22%;">
+                <div id='alias-container' class="d-flex flex-column col-container flex-fill">
                     <div class="grid-header">Alias</div>
                     <div id="alias-col" style="padding: 0px"></div>
                 </div>
-                <div class="d-flex flex-column col-container" style="min-width: 17%;">
+                <div id='region-container' class="d-flex flex-column col-container flex-fill">
                     <div class="grid-header">Region</div>
                     <div id="region-col" style="padding: 0px"></div>
                 </div>
-                <div class="d-flex flex-column col-container" style="min-width: 15%;">
+                <div id='classification-container' class="d-flex flex-column col-container flex-fill">
                     <div class="grid-header">Reported Classification</div>
                     <div id="classification-col" style="padding: 0px"></div>
                 </div>
-                <div class="d-flex flex-column col-container" style="min-width: 10%">
+                <div id='eval-container' class="d-flex flex-column col-container flex-fill">
                         <div class="grid-header">Last Evaluated</div>
                         <div id="eval-col" style="padding: 0px"></div>
                 </div>
-                <div class="d-flex flex-column col-container" style="min-width: 10%;">
+                <div id='update-container' class="d-flex flex-column col-container flex-fill">
                     <div class="grid-header">Last Updated</div>
                     <div id="update-col" style="padding: 0px"></div>
                 </div>
-                <div class="d-flex flex-column col-container" style="min-width: 8%;">
+                <div id='info-container' class="d-flex flex-column col-container flex-fill">
                     <div class="grid-header">More Info</div>
                     <div id="info-col" style="padding: 0px"></div>
                 </div>
