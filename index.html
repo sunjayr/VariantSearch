@@ -6,10 +6,19 @@
         <title>Variant Search Tool</title>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-        <script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
+        <script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.min.js"></script>
         <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-grid.css">
         <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-theme-balham.css">
         <style>
+            html {
+                height: 100%;
+                width: 100%;
+            }
+
+            body {
+                height: 100%;
+            }
+            
             .grid-header {
                 background-color:lightskyblue;
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -83,68 +92,53 @@
                 
                 
                 const columns = {
-                    'gene-col': 'gene',
-                    'nucleotide-col': 'nucleotide_change',
-                    'protein-col': 'protein_change',
-                    'alias-col': 'alias',
-                    'region-col': 'region',
-                    'classification-col': 'reported_classification',
-                    'eval-col': 'last_evaluated',
-                    'update-col': 'last_updated',
-                    'info-col': 'source'
+                    'gene': 'gene',
+                    'nucleotideChange': 'nucleotide_change',
+                    'proteinChange': 'protein_change',
+                    'alias': 'alias',
+                    'region': 'region',
+                    'reportedClassification': 'reported_classification',
+                    'lastEvaluated': 'last_evaluated',
+                    'lastUpdated': 'last_updated',
+                    'source': 'source'
+                };
+                
+                const columnDefs = [
+                    {headerName: 'Gene', field: 'gene', sortable: true, filter: true},
+                    {headerName: 'Nucleotide Change', field: 'nucleotideChange', sortable: true, filter: true},
+                    {headerName: 'Protein Change', field: 'proteinChange', sortable: true, filter: true},
+                    {headerName: 'Alias', field: 'alias', sortable: true, filter: true},
+                    {headerName: 'Region', field: 'region', sortable: true, filter: true},
+                    {headerName: 'Reported Classification', field: 'reportedClassification', sortable: true, filter: true},
+                    {headerName: 'Last Evaluated', field: 'lastEvaluated', sortable: true, filter: true},
+                    {headerName: 'Last Updated', field: 'lastUpdated', sortable: true, filter: true},
+                    {headerName: 'Source', field: 'source', sortable: true, filter: true}
+                ];
+
+                const gridOptions = {
+                    columnDefs: columnDefs
                 };
                 
                 function setUpDocument() {
-                    // loadAllRows();
-                    // document.getElementById('page-right').addEventListener('click', incrementPage);
-                    // document.getElementById('page-left').addEventListener('click', decrementPage);
-                    // document.getElementById('search').addEventListener('click', () => {
-                    //     offset = 0;
-                    //     searchGene();
-                    // });
-                    // document.getElementById('clear').addEventListener('click', () => {
-                    //     document.getElementById('input-box').value = null;
-                    //     loadAllRows();
-                    // });
-                    // document.getElementById('input-box').addEventListener('input', () => {
-                    //     let prefix = document.getElementById('input-box').value;
-                    //     prefix = prefix.toUpperCase().trim();
-                    //     if (prefix != null && prefix != '' && prefix != undefined) {
-                    //         requestSuggestions(prefix);
-                    //     }
-                    // });
                     setGrid();
+                    loadAllRows();
+
                     //addHighlightListeners();
                 }
                 
                 function setGrid() {
-                    let columns = [
-                        {headerName: 'Gene', field: 'gene'},
-                        {headerName: 'Nucleotide Change', field: 'nucleotideChange'},
-                        {headerName: 'Protein Change', field: 'proteinChange'},
-                        {headerName: 'Alias', field: 'alias'},
-                        {headerName: 'Region', field: 'region'},
-                        {headerName: 'Reported Classification', field: 'reportedClassification'},
-                        {headerName: 'Last Evaluated', field: 'lastEvaluated'},
-                        {headerName: 'Last Updated', field: 'lastUpdated'},
-                        {headerName: 'Source', field: 'source'}
-                    ];
-                    let rowData = [{
-                        gene: 'test',
-                        nucleotideChange: 'another',
-                        proteinChange: 'asdlfjh',
-                        alias: 'dfsd',
-                        region: 'asdjfn',
-                        reportedClassification: 'askdjhs',
-                        lastEvaluated: 'asdifuhr',
-                        lastUpdated: '12-12-12',
-                        source: 'asdfjh'
-                    }];
-                    let gridOptions = {
-                        columnDefs: columns,
-                        rowData: rowData
-                    }
-                    let gridDiv = document.getElementById('grid');
+                    // let rowData = [{
+                    //     gene: 'test',
+                    //     nucleotideChange: 'another',
+                    //     proteinChange: 'asdlfjh',
+                    //     alias: 'dfsd',
+                    //     region: 'asdjfn',
+                    //     reportedClassification: 'askdjhs',
+                    //     lastEvaluated: 'asdifuhr',
+                    //     lastUpdated: '12-12-12',
+                    //     source: 'asdfjh'
+                    // }];
+                    let gridDiv = document.querySelector('#grid');
                     new agGrid.Grid(gridDiv, gridOptions);
                 }
                 
@@ -239,7 +233,7 @@
                             addData(xhttp.responseText);
                         }
                     }
-                    let endpoint = url + `/genes/all?offset=${offset}&batch=${batch}`;
+                    let endpoint = `${url}/genes/all?offset=${offset}&batch=${batch}`;
                     xhttp.open('GET', endpoint, true);
                     xhttp.send();
                 }
@@ -250,28 +244,17 @@
                     totalResults = responseBody['totalResults'];
                     batch = responseBody['limit'];
                     let rows = responseBody['results'];
-                    resetColumns();
-                    updatePaginationLabel();
+                    //resetColumns();
+                    //updatePaginationLabel();
+                    let rowData = [];
                     for (let i = 0; i < rows.length; i++) {
+                        let rowObj = {};
                         for (let col in columns) {
-                            let element = document.getElementById(col);
-                            let cell = document.createElement('div');
-                            cell.style.padding = '0px';
-                            if (col === 'info-col') {
-                                let url = document.createElement('a');
-                                url.href = rows[i]['url'];
-                                url.innerHTML = rows[i][columns[col]];
-                                cell.appendChild(url);
-                            }
-                            else {
-                                cell.innerText = rows[i][columns[col]];
-                            }
-                            if (i % 2 == 0) {
-                                cell.classList.add('grid-body');
-                            }
-                            element.appendChild(cell);
+                            rowObj[col] = rows[i][columns[col]];
                         }
+                        rowData.push(rowObj);
                     }
+                    gridOptions.api.setRowData(rowData);
                 }
 
                 function loadSuggestions(responseText) {
@@ -297,13 +280,13 @@
                 document.addEventListener('DOMContentLoaded', setUpDocument);
             })();
         </script>
-        <div class="d-flex flex-column">
+        <div class="d-flex flex-column flex-grow">
             <div id="title" class="title-element">Variant Search Tool</div>
             <div class="d-flex flex-row">
                 <div class="d-inline-flex flex-row mr-auto">
                     <div class="input-group input-group-sm">
                         <input id="input-box" type="text" placeholder="Enter a gene name" style="text-align: center;">
-                        <button id='search' class="btn btn-sm mx-1 btn-primary">Search</button>
+                        <button id='search' class="btn btn-sm mx-1 btn-primary" type="submit">Search</button>
                         <button id='clear' class="btn button-sm btn-secondary">Clear</button>
                     </div>
                 </div>
@@ -313,8 +296,8 @@
                     <button id="page-right" class="btn btn-sm btn-outline-secondary"><i class="fa fa-angle-double-right"></i></button>
                 </div>
             </div>
-            <div id='grid'></div>
         </div>
+        <div id='grid' class="ag-theme-balham" style="height: 100%; width: 100%"></div>
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
