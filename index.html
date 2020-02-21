@@ -104,40 +104,93 @@
                 };
                 
                 const columnDefs = [
-                    {headerName: 'Gene', field: 'gene', sortable: true, filter: true},
-                    {headerName: 'Nucleotide Change', field: 'nucleotideChange', sortable: true, filter: true},
-                    {headerName: 'Protein Change', field: 'proteinChange', sortable: true, filter: true},
-                    {headerName: 'Alias', field: 'alias', sortable: true, filter: true},
-                    {headerName: 'Region', field: 'region', sortable: true, filter: true},
-                    {headerName: 'Reported Classification', field: 'reportedClassification', sortable: true, filter: true},
-                    {headerName: 'Last Evaluated', field: 'lastEvaluated', sortable: true, filter: true},
-                    {headerName: 'Last Updated', field: 'lastUpdated', sortable: true, filter: true},
-                    {headerName: 'Source', field: 'source', sortable: true, filter: true}
+                    {
+                        headerName: 'Gene',
+                        field: 'gene'
+                    },
+                    {
+                        headerName: 'Nucleotide Change',
+                        field: 'nucleotideChange'
+                    },
+                    {
+                        headerName: 'Protein Change',
+                        field: 'proteinChange'
+                    },
+                    {
+                        headerName: 'Alias', 
+                        field: 'alias'
+                    },
+                    {
+                        headerName: 'Region',
+                        field: 'region'
+                    },
+                    {
+                        headerName: 'Reported Classification', 
+                        field: 'reportedClassification'
+                    },
+                    {
+                        headerName: 'Last Evaluated',
+                        field: 'lastEvaluated'
+                    },
+                    {
+                        headerName: 'Last Updated', 
+                        field: 'lastUpdated'
+                    },
+                    {
+                        headerName: 'Source', 
+                        field: 'source'
+                    }
                 ];
 
+                const constRowData = [{
+                    gene: 'test',
+                    nucleotideChange: 'another test cell wrapping with lost asdfkjh sdkfjh',
+                    proteinChange: 'asdlfjh',
+                    alias: 'dfsd',
+                    region: 'asdjfn',
+                    reportedClassification: 'askdjhs',
+                    lastEvaluated: 'asdifuhr',
+                    lastUpdated: '12-12-12',
+                    source: 'asdfjh'
+                }];
+
                 const gridOptions = {
+                    defaultColDef: {
+                        sortable: true,
+                        filter: true,
+                        resizable: true,
+                        autoHeight: true,
+                        cellClass: 'cell-wrap-text'
+                    },
                     columnDefs: columnDefs
                 };
                 
                 function setUpDocument() {
                     setGrid();
                     loadAllRows();
-
-                    //addHighlightListeners();
+                    document.getElementById('page-right').addEventListener('click', incrementPage);
+                    document.getElementById('page-left').addEventListener('click', decrementPage);
+                    document.getElementById('search').addEventListener('click', () => {
+                        offset = 0;
+                        closeSuggestionList();
+                        searchGene();
+                    });
+                    document.getElementById('clear').addEventListener('click', () => {
+                        document.getElementById('input-box').value = null;
+                        closeSuggestionList();
+                        loadAllRows();
+                    });
+                    document.getElementById('input-box').addEventListener('input', () => {
+                        closeSuggestionList();
+                        let prefix = document.getElementById('input-box').value; 
+                        prefix = prefix.toUpperCase().trim();
+                        if (prefix != null && prefix != '' && prefix != undefined) {
+                            requestSuggestions(prefix);
+                        }
+                    });
                 }
                 
                 function setGrid() {
-                    // let rowData = [{
-                    //     gene: 'test',
-                    //     nucleotideChange: 'another',
-                    //     proteinChange: 'asdlfjh',
-                    //     alias: 'dfsd',
-                    //     region: 'asdjfn',
-                    //     reportedClassification: 'askdjhs',
-                    //     lastEvaluated: 'asdifuhr',
-                    //     lastUpdated: '12-12-12',
-                    //     source: 'asdfjh'
-                    // }];
                     let gridDiv = document.querySelector('#grid');
                     new agGrid.Grid(gridDiv, gridOptions);
                 }
@@ -245,7 +298,7 @@
                     batch = responseBody['limit'];
                     let rows = responseBody['results'];
                     //resetColumns();
-                    //updatePaginationLabel();
+                    updatePaginationLabel();
                     let rowData = [];
                     for (let i = 0; i < rows.length; i++) {
                         let rowObj = {};
@@ -257,11 +310,22 @@
                     gridOptions.api.setRowData(rowData);
                 }
 
+                function closeSuggestionList(target) {
+                    let elements = document.getElementsByClassName('suggestion-container');
+                    for (let i = 0; i < elements.length; i++){
+                        if (target != elements[i] && target != document.getElementById('input-box').value){
+                            elements[i].parentNode.removeChild(elements[i]);
+                        }
+                    }
+
+                }
+                
                 function loadSuggestions(responseText) {
                     let response = JSON.parse(responseText).results;
                     let inputBox = document.getElementById('input-box');
                     let value = inputBox.value;
                     let genes = response.map(x => x.gene);
+                    genes = genes.filter((word, index) => genes.indexOf(word) === index);
                     let entry;
                     //let inputBox = document.getElementById('input-box');
                     //create dropdown
@@ -297,7 +361,7 @@
                 </div>
             </div>
         </div>
-        <div id='grid' class="ag-theme-balham" style="height: 100%; width: 100%"></div>
+        <div id='grid' class="ag-theme-balham" style="height: 85%; width: 100%"></div>
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>

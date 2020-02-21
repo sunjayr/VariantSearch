@@ -43,7 +43,6 @@ class GeneController {
                     error_message: err
                 });
             }
-
             response.status(200).json({
                 results: data
             });
